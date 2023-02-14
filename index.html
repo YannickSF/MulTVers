@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>MulTVers</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<script type="text/javascript">
+    let url = window.location.href;
+    var client_id = '3tb8b7vw9i5wg4u89fb4q54n2ewgla';
+    var currentAccessToken = undefined;
+
+    var channels = ['yannick_sf'];
+    var index = 0;
+    var currentChannel = undefined;
+
+
+    if (url.includes('access_token')) {
+        let params = url.split('#');
+        let strAcctoken = params[1].split('&');
+        currentAccessToken = strAcctoken[0].split('=')[1];
+        console.log(currentAccessToken);
+        apiGetUserInfos();
+    }
+
+    function progUp() {
+        if (index == channels.length - 1) {
+            index = 0;
+        } else {
+            index++;
+        }
+        currentChannel.setChannel(channels[index]);
+
+    }
+
+    function progDown() {
+        if (index == 0) {
+            index = channels.length - 1;
+        } else {
+            index--;
+        }
+        currentChannel.setChannel(channels[index]);
+    }
+
+    function addStreamerTochannels() {
+        let value = document.getElementById('search-streamer');
+        let view = document.getElementById('channels-view');
+
+        channels.push(value.value);
+        view.innerHTML += '<span class="tag is-medium">' + value.value + '</span> '
+        value.value = ''
+    }
+
+    function apiGetUserInfos() {
+        if (currentAccessToken != undefined) {
+
+            axios.get("https://api.twitch.tv/helix/users", {
+                headers: {
+                    'Authorization': 'Bearer ' + currentAccessToken,
+                    'Client-Id': client_id
+                }
+            }).then((response) => {
+
+                let userInfos = response.data.data[0]
+                axios.get("https://api.twitch.tv/helix/streams/followed?user_id=" + userInfos.id, {
+                    headers: {
+                        'Authorization': 'Bearer ' + currentAccessToken,
+                        'Client-Id': client_id
+                    }
+                }).then((resp) => {
+
+                    let streamList = resp.data.data
+                    for (var e in streamList) {
+                        channels.push(streamList[e].user_login);
+                        document.getElementById('channels-view').innerHTML += '<span class="tag is-medium">' + streamList[e].user_login + '</span> ';
+                    }
+                })
+
+            });
+        }
+    }
+</script>
+
+<body>
+    <section class="container">
+        <div class="columns">
+            <div class="column is-10 is-offset-1">
+                <h1 class="title">MulT Vers</h1>
+                <h2 class="subtitle">One view to see them all !</h2>
+                <hr>
+                <!-- Add a placeholder for the Twitch embed -->
+                <div id="twitch-embed"></div>
+
+                <!-- Load the Twitch embed JavaScript file -->
+                <script src="https://embed.twitch.tv/embed/v1.js"></script>
+
+                <!-- Create a Twitch.Embed object that will render within the "twitch-embed" element -->
+                <script type="text/javascript">
+                    currentChannel = new Twitch.Embed("twitch-embed", {
+                        width: 1100,
+                        height: 600,
+                        channel: channels[index],
+                        // Only needed if this page is going to be embedded on other websites
+                        parent: ["localhost", "hilarious-naiad-d54a76.netlify.app"]
+                    });
+                </script>
+
+                <hr>
+                <div class="container column is-4 is-offset-8">
+                    <button class="button is-info is-light" onClick="progDown()"><</button>
+                    <button class="button is-info is-light" onClick="progUp()">></button>
+                    <button class="button">+</button>
+                    <button class="button">-</button>
+                    <button class="button is-dark is-light"><a target="_blank" href="https://www.netflix.com/browse">Netflix</a></button>
+                    <button class="button is-warning"><a target="_blank" href="https://app.plex.tv/desktop/#!/">Plex</a></button>
+                </div>
+
+                <hr>
+                <div class="container columns">
+                    <div class="column is-1">
+                        <button class="button is-link">
+                            <a style="color:white;" href="https://id.twitch.tv/oauth2/authorize?client_id=3tb8b7vw9i5wg4u89fb4q54n2ewgla&redirect_uri=https://hilarious-naiad-d54a76.netlify.app&scope=user:read:follows&response_type=token">Twitch</a>
+                        </button>
+                    </div>
+
+                    <div class="container column is-6">
+                        <p id="channels-view"></p>
+                    </div>
+
+
+                    <div class="container column is-4">
+                        <div class="field has-addons">
+                            <div class="control">
+                                <input id="search-streamer" class="input is-rounded" type="text" placeholder="ajouter un streamer">
+                            </div>
+                            <div class="control">
+                                <button class="button is-link is-light is-rounded" onClick="addStreamerTochannels()">Ajouter</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+                <div class="container columns">
+                    <div class="column is-1">
+                        <button class="button is-danger">Youtube</button>
+                    </div>
+
+                    <div class="container column is-6">
+                        <p id="yt-view"></p>
+                    </div>
+
+
+                    <div class="container column is-4">
+                        <div class="field has-addons">
+                            <div class="control">
+                                <input id="search-youtube" class="input is-rounded" type="text" placeholder="ajouter une vidéo">
+                            </div>
+                            <div class="control">
+                                <button class="button is-danger is-light is-rounded" onClick="">
+                                        Ajouter
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </section>
+
+</body>
+
+</html>
