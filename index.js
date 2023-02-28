@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const port = 3000
-const path = require('path');
+    // const path = require('path');
 const router = express.Router();
 
 router.get('/', (req, res) => {
@@ -9,6 +9,7 @@ router.get('/', (req, res) => {
 });
 
 app.use('/', router);
+
 app.listen(port, () => {
     console.log(`MulTVers : listening port ${port}`)
 })
