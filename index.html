@@ -4,10 +4,9 @@
 <head>
     <title>MulTVers</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
-    <!-- Load the Twitch embed JavaScript file -->
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
 </head>
 
@@ -15,269 +14,336 @@
     <div class="columns">
         <div class="column is-12">
 
-            <!-- HEADER -->
-            <div class="container">
-                <nav class="navbar">
-                    <div class="navbar-brand">
-                        <p class="title"><a href="https://app.yannicksf.xyz">Mul[T•V]ers</a></p>
+            <div id="app">
+                <!-- HEADER -->
+                <div class="container">
+                    <nav class="navbar">
+                        <div class="navbar-brand">
+                            <p class="title"><a :href="host">Mul[T•V]ers</a></p>
+                        </div>
+
+                        <div class="navbar-menu">
+                            <div class="navbar-end">
+                                <div class="navbar-item"><button class="button is-dark "><a style="color:red;" target="_blank" href="https://www.netflix.com/browse">Netflix</a></button></div>
+                                <div class="navbar-item"><button class="button is-black"><a style="color: yellow;" target="_blank" href="https://app.plex.tv/desktop/#!/">Plex</a></button></div>
+                                <div class="navbar-item"><button class="button is-info "><a style="color:white;" target="_blank" href="">Prime Vidéo</a></button></div>
+                                <div class="navbar-item"><button class="button is-light"><a style="color: blue;" target="_blank" href="">Disney +</a></button></div>
+                            </div>
+                        </div>
+                    </nav>
+                    <hr>
+                </div>
+
+                <!-- Balise du player -->
+                <div id="place-player">
+                    <div v-if="playerMode === 'YT'">
+                        <iframe width="100%" height="700" :src="ytUrlVideo"></iframe>
                     </div>
+                    <div v-else id="player"></div>
+                </div>
 
-                    <div class="navbar-menu">
-                        <div class="navbar-end">
-                            <div class="navbar-item"><button class="button is-dark "><a style="color:red;" target="_blank" href="https://www.netflix.com/browse">Netflix</a></button></div>
-                            <div class="navbar-item"><button class="button is-black"><a style="color: yellow;" target="_blank" href="https://app.plex.tv/desktop/#!/">Plex</a></button></div>
-                            <div class="navbar-item"><button class="button is-info "><a style="color:white;" target="_blank" href="">Prime Vidéo</a></button></div>
-                            <div class="navbar-item"><button class="button is-light"><a style="color: blue;" target="_blank" href="">Disney +</a></button></div>
+                <div class="container">
+                    <!-- TWITCH -->
+                    <hr>
+                    <nav class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <button class="button is-primary is-rounded"> 
+                                    <a style="color:white;" :href="twLoginUrl">Log In</a> 
+                                </button>
+                            </div>
+                            <div class="level-item">
+                                <button class="button is-link" @click="loadTwitchPlayer()">Twitch</button>
+                            </div>
+                            <div class="level-item">
+                                <span v-for="item in channels" class="tag is-medium" style="margin-left: 5px;">{{ item }}</span>
+                            </div>
                         </div>
-                    </div>
-                </nav>
-                <hr>
-            </div>
 
-            <!-- Balise du player -->
-            <div id="place-player">
-                <div id="player"></div>
-            </div>
-
-            <div class="container">
-                <!-- TWITCH -->
-                <hr>
-                <nav class="level">
-                    <div class="level-left">
-                        <div class="level-item">
-                            <button class="button is-primary is-rounded"> 
-                                <a style="color:white;" href="https://id.twitch.tv/oauth2/authorize?client_id=3tb8b7vw9i5wg4u89fb4q54n2ewgla&redirect_uri=https://app.yannicksf.xyz&scope=user:read:follows&response_type=token">Log In</a> 
-                            </button>
-                        </div>
-                        <div class="level-item">
-                            <button class="button is-link" onClick="loadTwitchPlayer()">Twitch</button>
-                        </div>
-                        <div class="level-item">
-                            <p id="channels-view"></p>
-                        </div>
-                        <div class="level-item">
-                            <div class="field has-addons">
-                                <div class="control">
-                                    <input id="search-streamer" class="input is-rounded" type="text" placeholder="">
+                        <div class="level-right">
+                            <div class="level-item">
+                                <div class="field has-addons">
+                                    <div class="control">
+                                        <input id="search-streamer" class="input is-rounded" type="text" placeholder="Coming soon ...">
+                                    </div>
+                                    <div class="control">
+                                        <button class="button is-link is-light is-rounded" @click="addStreamerTochannels()">Search</button>
+                                    </div>
                                 </div>
-                                <div class="control">
-                                    <button class="button is-link is-light is-rounded" onClick="addStreamerTochannels()">Search</button>
+                            </div>
+                            <p class="level-item"><button class="button is-info is-light is-rounded" @click="progDown()"><</button></p>
+                            <p class="level-item"><button class="button is-info is-light is-rounded" @click="progUp()">></button></p>
+                        </div>
+                    </nav>
+
+                    <!-- YOUTUBE -->
+                    <hr>
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <button class="button is-primary is-rounded">
+                                    <a style="color:white;" :href="ytLoginUrl">Log In</a>
+                                </button>
+                            </div>
+                            <div class="level-item">
+                                <button class="button is-danger" @click="ytApiSub()">Youtube</button>
+                            </div>
+                        </div>
+                        <div class="level-right">
+                            <div class="level-item">
+                                <div class="field has-addons">
+                                    <div class="control">
+                                        <input id="search-streamer" class="input is-rounded" placeholder="Coming soon ..." type="text">
+                                    </div>
+                                    <div class="control">
+                                        <button class="button is-danger is-light is-rounded">Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="level-item">
+                                <button class="button is-info is-light is-rounded" :disabled="ytPagination.prevTokenIsActive" @click="ytApiSubPN(this.ytPagination.prevPageToken)"><</button>
+                            </p>
+                            <p class="level-item">
+                                <button class="button is-info is-light is-rounded" @click="ytApiSubPN(this.ytPagination.nextPageToken)">></button>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="container">
+                        <div id="yt-sub" class="columns is-multiline">
+                            <div v-for="element in this.ytPagination.subItems" class='column is-one-fifth'>
+                                <div class='card'>
+                                    <header class='card-header'>
+                                        <button class='card-header-icon' @click="ytSearchVideoBySub(element.snippet.resourceId.channelId)">Voir</button>
+                                    </header>
+                                    <div class='card-image'>
+                                        <figure class='image is-4by3'>
+                                            <img :src="element.snippet.thumbnails.default.url" alt='Placeholder image'>
+                                        </figure>
+                                    </div>
+                                    <div class='card-content'>
+                                        <div class='media'>
+                                            <div class='media-content'>
+                                                <p class='title is-4'>{{ element.snippet.title }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div v-for="element in this.ytPagination.videoItems" class='column is-one-fifth'>
+                                <div class='card'>
+                                    <header class='card-header'>
+                                        <button class='card-header-icon' @click="changeUrlVideo(element.id.videoId)">Voir</button>
+                                    </header>
+                                    <div class='card-image'>
+                                        <figure class='image is-4by3'>
+                                            <img :src="element.snippet.thumbnails.default.url" alt='Placeholder image'>
+                                        </figure>
+                                    </div>
+                                    <div class='card-content'>
+                                        <div class='media'>
+                                            <div class='media-content'>
+                                                <p class='title is-4'>{{ element.snippet.title }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="level-right">
-                        <p class="level-item"><button class="button is-info is-light" onClick="progDown()"><</button></p>
-                        <p class="level-item"><button class="button is-info is-light" onClick="progUp()">></button></p>
-                    </div>
-                </nav>
-
-                <!-- YOUTUBE -->
-                <hr>
-                <div class="level">
-                    <div class="level-right">
-                        <div class="level-item">
-                            <button class="button is-primary is-rounded">
-                                <a style="color:white;" href="" <!--href="https://accounts.google.com/o/oauth2/v2/auth?client_id=414258510687-2sr6glgkobrm6brigtn241jv8prqndas.apps.googleusercontent.com&redirect_uri=http://localhost:3000&response_type=token&scope=https://www.googleapis.com/auth/youtube.readonly"--> </a>Log In</a>
-                            </button>
-                        </div>
-                        <div class="level-item">
-                            <button class="button is-danger" onClick="">Youtube</button>
-                        </div>
-
-                        <div class="level-item">
-                            <div class="field has-addons">
-                                <div class="control">
-                                    <input id="search-streamer" class="input is-rounded" placeholder="Coming soon ..." type="text">
-                                </div>
-                                <div class="control">
-                                    <button class="button is-danger is-light is-rounded" onClick="">Search</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="yt-sub" class="columns is-multiline">
                 </div>
 
             </div>
+
         </div>
+    </div>
 
-        <script type="text/javascript">
-            var channels = ['yannick_sf'];
-            var index = 0;
-            var currentPlayer = undefined;
-            var currentPlayerMode = undefined;
+    <script>
+        // SETTINGS << 
+        let url = window.location.href;
+        var twClientId = '3tb8b7vw9i5wg4u89fb4q54n2ewgla';
+        var ytClientId = '414258510687-2sr6glgkobrm6brigtn241jv8prqndas.apps.googleusercontent.com';
+        var ytApiKey = 'AIzaSyB9jIFZNvFR_Dyn5wuRokxGQo-x-Wypupg';
 
-            function progUp() {
+        const {
+            createApp
+        } = Vue
 
-                if (index == channels.length - 1) {
-                    index = 0;
-                } else {
-                    index++;
-                }
-                currentPlayer.setChannel(channels[index]);
+        createApp({
+            mounted() {
 
-            }
+                if (url.includes('access_token') && url.includes('youtube')) {
+                    let params = url.split('#');
+                    let strAcctoken = params[1].split('&');
+                    localStorage.setItem('ytAccessToken', strAcctoken[0].split('=')[1]);
 
-            function progDown() {
+                } else if (url.includes('access_token')) {
+                    let params = url.split('#');
+                    let strAcctoken = params[1].split('&');
+                    localStorage.setItem('twAccessToken', strAcctoken[0].split('=')[1]);
 
-                if (index == 0) {
-                    index = channels.length - 1;
-                } else {
-                    index--;
-                }
-                currentPlayer.setChannel(channels[index]);
-            }
-
-            function refreshPlayer() {
-                if (currentPlayerMode == 'yt') {
-                    document.getElementById('player').remove();
-
-                    let ppl = document.getElementById('place-player');
-                    let newplayer = document.createElement('div');
-                    newplayer.id = 'player';
-                    ppl.append(newplayer);
-                }
-            }
-
-            function loadDefault() {
-                if (currentPlayerMode == 'tw') {
-                    loadTwitchPlayer();
-                } else if (currentPlayerMode == 'yt') {
-                    onYouTubeIframeAPIReady();
-                } else {
-                    currentPlayerMode == 'tw';
-                    loadTwitchPlayer();
-                }
-            }
-
-            // SETTINGS << 
-            let url = window.location.href;
-
-            var twClientId = '3tb8b7vw9i5wg4u89fb4q54n2ewgla';
-            var twAccessToken = undefined;
-
-            var ytClientId = '414258510687-2sr6glgkobrm6brigtn241jv8prqndas.apps.googleusercontent.com';
-            var ytApiKey = 'AIzaSyB9jIFZNvFR_Dyn5wuRokxGQo-x-Wypupg';
-            var ytAccessToken = undefined;
-
-            if (url.includes('access_token') && url.includes('youtube')) {
-                let params = url.split('#');
-                let strAcctoken = params[1].split('&');
-                ytAccessToken = strAcctoken[0].split('=')[1];
-                currentPlayerMode = 'yt';
-
-            } else if (url.includes('access_token')) {
-                let params = url.split('#');
-                let strAcctoken = params[1].split('&');
-                twAccessToken = strAcctoken[0].split('=')[1];
-                currentPlayerMode = 'tw';
-
-            }
-
-            loadDefault();
-
-            // TWITCH <<
-            function loadTwitchPlayer() {
-
-                if (currentPlayerMode == 'yt') {
-                    refreshPlayer();
                 }
 
-                currentPlayer = new Twitch.Embed("player", {
-                    width: '100%',
-                    height: 700,
-                    channel: channels[index],
-                    // Only needed if this page is going to be embedded on other websites
-                    parent: ["localhost", "hilarious-naiad-d54a76.netlify.app"]
-                });
-
-                if (twAccessToken != undefined) {
-                    twApiGetUserInfos();
+                if (localStorage.getItem('twAccessToken') != 'undefined') {
+                    this.logedTW = true;
                 }
-            }
 
-            function twApiGetUserInfos() {
-                axios.get("https://api.twitch.tv/helix/users", {
-                    headers: {
-                        'Authorization': 'Bearer ' + twAccessToken,
-                        'Client-Id': twClientId
+                if (localStorage.getItem('ytAccessToken') != 'undefined') {
+                    this.logedYT = true;
+                }
+
+            },
+            data() {
+                return {
+                    host: "https://app.yannicksf.xyz", // "http://localhost:3000"
+                    currentPlayer: undefined,
+                    playerMode: 'TW',
+                    index: 0,
+                    channels: [],
+                    logedTW: false,
+                    ytVideoId: '',
+                    ytVideos: [],
+                    logedYT: false,
+                    ytPagination: {
+                        prevPageToken: '',
+                        prevTokenIsActive: false,
+                        nextPageToken: '',
+                        subItems: [],
+                        videoItems: []
                     }
-                }).then((response) => {
+                }
+            },
+            methods: {
+                // TWITCH <<
+                loadTwitchPlayer() {
+                    this.playerMode = 'TW';
 
-                    let userInfos = response.data.data[0]
-                    axios.get("https://api.twitch.tv/helix/streams/followed?user_id=" + userInfos.id, {
+                    setTimeout(() => {
+                        this.currentPlayer = new Twitch.Embed("player", {
+                            width: '100%',
+                            height: 700,
+                            channel: 'yannick_sf',
+                            // Only needed if this page is going to be embedded on other websites
+                            parent: ['localhost']
+                        });
+                    }, (100));
+
+                    if (this.logedTW) {
+                        this.channels = []
+                        this.twApiGetUserInfos();
+                    }
+                },
+                twApiGetUserInfos() {
+                    axios.get("https://api.twitch.tv/helix/users", {
                         headers: {
-                            'Authorization': 'Bearer ' + twAccessToken,
+                            'Authorization': 'Bearer ' + localStorage.getItem('twAccessToken'),
                             'Client-Id': twClientId
                         }
-                    }).then((resp) => {
+                    }).then((response) => {
 
-                        let streamList = resp.data.data
-                        for (var e in streamList) {
-                            channels.push(streamList[e].user_login);
-                            document.getElementById('channels-view').innerHTML += '<span class="tag is-medium">' + streamList[e].user_login + '</span> ';
-                        }
-                    })
+                        var userInfos = response.data.data[0]
+                        axios.get("https://api.twitch.tv/helix/streams/followed?user_id=" + userInfos.id, {
+                            headers: {
+                                'Authorization': 'Bearer ' + localStorage.getItem('twAccessToken'),
+                                'Client-Id': twClientId
+                            }
+                        }).then((resp) => {
 
-                });
+                            var streamList = resp.data.data
+                            for (var e in streamList) {
+                                this.channels.push(streamList[e].user_login);
+                            }
+                        })
 
-            }
+                    });
+                },
+                addStreamerTochannels() {
+                    let value = document.getElementById('search-streamer');
+                    this.channels.push(value.value);
+                    value.value = ''
+                },
+                progUp() {
 
-            function addStreamerTochannels() {
-                let value = document.getElementById('search-streamer');
-                let view = document.getElementById('channels-view');
-
-                channels.push(value.value);
-                view.innerHTML += '<span class="tag is-medium">' + value.value + '</span> '
-                value.value = ''
-            }
-
-            // YOUTUBE << 
-            function onYouTubeIframeAPIReady(chooseVideoId) {
-
-                var tag = document.createElement('script');
-                tag.src = "https://www.youtube.com/iframe_api";
-
-                var firstScriptTag = document.getElementsByTagName('script')[0];
-                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-                currentPlayer = new YT.Player('player', {
-                    width: '100%',
-                    height: '700',
-                    videoId: chooseVideoId
-                });
-
-                currentPlayerMode = 'yt';
-            }
-
-            function ytApiSub() {
-                axios.get("https://youtube.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&key=" + ytApiKey, {
-                    headers: {
-                        'Authorization': 'Bearer ' + ytAccessToken
+                    if (this.index == this.channels.length - 1) {
+                        this.index = 0;
+                    } else {
+                        this.index++;
                     }
-                }).then((response) => {
+                    this.currentPlayer.setChannel(this.channels[this.index]);
 
-                    let subListChannelInfos = response.data.items
-                    axios.get("https://youtube.googleapis.com/youtube/v3/search?part=snippet&channelId=" + 'UCZ5TwKZZDHXokyRuAA9iG3w' + "&type=video&key=" + ytApiKey, {
+                },
+                progDown() {
+
+                    if (this.index == 0) {
+                        this.index = this.channels.length - 1;
+                    } else {
+                        this.index--;
+                    }
+                    this.currentPlayer.setChannel(this.channels[this.index]);
+                },
+
+                ytApiSub() {
+                    axios.get("https://youtube.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&key=" + ytApiKey, {
                         headers: {
-                            'Authorization': 'Bearer ' + ytAccessToken
+                            'Authorization': 'Bearer ' + localStorage.getItem('ytAccessToken')
+                        }
+                    }).then((response) => {
+                        this.ytPagination.subItems = response.data.items
+                        this.ytPagination.nextPageToken = response.data.nextPageToken
+
+                        if (response.data.hasOwnProperty('prevPageToken')) {
+                            this.ytPagination.prevPagetoken = response.data.prevPageToken;
+                            this.ytPagination.prevTokenIsActive = true;
+                        }
+
+                    })
+                },
+                ytApiSubPN(pageToken) {
+                    axios.get("https://youtube.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&pageToken=" + pageToken + "&key=" + ytApiKey, {
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('ytAccessToken')
+                        }
+                    }).then((response) => {
+                        this.ytPagination.subItems = response.data.items
+                        this.ytPagination.nextPageToken = response.data.nextPageToken
+
+                        if (response.data.hasOwnProperty('prevPageToken')) {
+                            this.ytPagination.prevPageToken = response.data.prevPageToken;
+                            this.ytPagination.prevTokenIsActive = true;
+                        }
+
+                    })
+                },
+                ytSearchVideoBySub(subChanelId) {
+                    axios.get("https://youtube.googleapis.com/youtube/v3/search?part=snippet&channelId=" + subChanelId + "&type=video&key=" + ytApiKey, {
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('ytAccessToken')
                         }
                     }).then((resp) => {
-                        var subVideosInfos = resp.data.items;
-
-                        for (let i in subVideosInfos) {
-                            console.log(subVideosInfos[i].snippet['thumbnails']['default']['url']);
-                            let videoId = subVideosInfos[i].id["videoId"];
-                            document.getElementById('yt-sub').innerHTML += "<div class='column is-one-quarter'> <div class='card'> <header class='card-header'><button class='card-header-icon' onclick='onPlayerLoad('" + videoId + "')'>Voir</button> </header> <div class='card-image'><figure class='image is-4by3'> <img src='" + subVideosInfos[i].snippet['thumbnails']['default']['url'] + "' alt='Placeholder image'> </figure></div> <div class='card-content'> <div class='media'> <div class='media-content'> <p class='title is-4'>" + subVideosInfos[i].snippet['title'] + "</p> </div> </div> </div> </div> </div>";
-                        }
+                        this.ytPagination.videoItems = resp.data.items;
                     })
-                })
+                },
+                changeUrlVideo(value) {
+                    this.playerMode = 'YT';
+                    this.ytVideoId = value;
+                }
+
+            },
+            computed: {
+                twLoginUrl() {
+                    return 'https://id.twitch.tv/oauth2/authorize?client_id=' + twClientId + '&redirect_uri=' + this.host + '&scope=user:read:follows&response_type=token'
+                },
+                ytLoginUrl() {
+                    return 'https://accounts.google.com/o/oauth2/v2/auth?client_id=' + ytClientId + '&redirect_uri=' + this.host + '&response_type=token&scope=https://www.googleapis.com/auth/youtube.readonly'
+                },
+                ytUrlVideo() {
+                    return 'https://www.youtube.com/embed/' + this.ytVideoId
+                },
             }
-        </script>
+        }).mount('#app')
+    </script>
 
 </body>
 
