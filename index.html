@@ -26,8 +26,8 @@
                             <div class="navbar-end">
                                 <div class="navbar-item"><button class="button is-dark "><a style="color:red;" target="_blank" href="https://www.netflix.com/browse">Netflix</a></button></div>
                                 <div class="navbar-item"><button class="button is-black"><a style="color: yellow;" target="_blank" href="https://app.plex.tv/desktop/#!/">Plex</a></button></div>
-                                <div class="navbar-item"><button class="button is-info "><a style="color:white;" target="_blank" href="">Prime Vidéo</a></button></div>
-                                <div class="navbar-item"><button class="button is-light"><a style="color: blue;" target="_blank" href="">Disney +</a></button></div>
+                                <div class="navbar-item"><button class="button is-info "><a style="color:white;" target="_blank" href="https://www.primevideo.com/region/eu/?ref_=dv_web_unknown">Prime Vidéo</a></button></div>
+                                <div class="navbar-item"><button class="button is-light"><a style="color: blue;" target="_blank" href="https://www.disneyplus.com/fr-fr/select-profile">Disney +</a></button></div>
                             </div>
                         </div>
                     </nav>
@@ -61,6 +61,7 @@
                         </div>
 
                         <div class="level-right">
+                            <!--
                             <div class="level-item">
                                 <div class="field has-addons">
                                     <div class="control">
@@ -71,6 +72,7 @@
                                     </div>
                                 </div>
                             </div>
+                            -->
                             <p class="level-item"><button class="button is-info is-light is-rounded" @click="progDown()"><</button></p>
                             <p class="level-item"><button class="button is-info is-light is-rounded" @click="progUp()">></button></p>
                         </div>
@@ -90,6 +92,7 @@
                             </div>
                         </div>
                         <div class="level-right">
+                            <!--
                             <div class="level-item">
                                 <div class="field has-addons">
                                     <div class="control">
@@ -100,8 +103,9 @@
                                     </div>
                                 </div>
                             </div>
+                            -->
                             <p class="level-item">
-                                <button class="button is-info is-light is-rounded" :disabled="ytPagination.prevTokenIsActive" @click="ytApiSubPN(this.ytPagination.prevPageToken)"><</button>
+                                <button class="button is-info is-light is-rounded" :disabled="!ytPagination.prevTokenIsActive" @click="ytApiSubPN(this.ytPagination.prevPageToken)"><</button>
                             </p>
                             <p class="level-item">
                                 <button class="button is-info is-light is-rounded" @click="ytApiSubPN(this.ytPagination.nextPageToken)">></button>
@@ -290,8 +294,6 @@
                     } else {
                         this.channels[this.index - 1].isActive = false;
                     }
-
-
                 },
                 progDown() {
 
@@ -315,7 +317,6 @@
                     }
 
                 },
-
                 selectProg(index) {
                     if (index > -1) {
                         this.currentPlayer.setChannel(this.channels[index].name);
@@ -361,7 +362,7 @@
                     })
                 },
                 ytSearchVideoBySub(subChanelId) {
-                    axios.get("https://youtube.googleapis.com/youtube/v3/search?part=snippet&channelId=" + subChanelId + "&type=video&key=" + ytApiKey, {
+                    axios.get("https://youtube.googleapis.com/youtube/v3/search?part=snippet&channelId=" + subChanelId + "&order=date&maxResults=10&type=video&key=" + ytApiKey, {
                         headers: {
                             'Authorization': 'Bearer ' + localStorage.getItem('ytAccessToken')
                         }
@@ -372,11 +373,7 @@
                 changeUrlVideo(value) {
                     this.playerMode = 'YT';
                     this.ytVideoId = value;
-                },
-                selectedChannel(id) {
-                    return this.index == id;
                 }
-
             },
             computed: {
                 twLoginUrl() {
