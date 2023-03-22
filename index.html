@@ -160,7 +160,6 @@
                 </div>
 
             </div>
-
         </div>
     </div>
 
@@ -335,6 +334,7 @@
                             'Authorization': 'Bearer ' + localStorage.getItem('ytAccessToken')
                         }
                     }).then((response) => {
+
                         this.ytPagination.subItems = response.data.items
                         this.ytPagination.nextPageToken = response.data.nextPageToken
 
