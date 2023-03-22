@@ -26,8 +26,8 @@
                             <div class="navbar-end">
                                 <div class="navbar-item"><button class="button is-dark "><a style="color:red;" target="_blank" href="https://www.netflix.com/browse">Netflix</a></button></div>
                                 <div class="navbar-item"><button class="button is-black"><a style="color: yellow;" target="_blank" href="https://app.plex.tv/desktop/#!/">Plex</a></button></div>
-                                <div class="navbar-item"><button class="button is-info "><a style="color:white;" target="_blank" href="">Prime Vidéo</a></button></div>
-                                <div class="navbar-item"><button class="button is-light"><a style="color: blue;" target="_blank" href="">Disney +</a></button></div>
+                                <div class="navbar-item"><button class="button is-info "><a style="color:white;" target="_blank" href="https://www.primevideo.com/region/eu/?ref_=dv_web_unknown">Prime Vidéo</a></button></div>
+                                <div class="navbar-item"><button class="button is-light"><a style="color: blue;" target="_blank" href="https://www.disneyplus.com/fr-fr/select-profile">Disney +</a></button></div>
                             </div>
                         </div>
                     </nav>
@@ -47,7 +47,7 @@
                     <hr>
                     <nav class="level">
                         <div class="level-left">
-                            <div class="level-item">
+                            <div v-if="!logedTW" class="level-item">
                                 <button class="button is-primary is-rounded"> 
                                     <a style="color:white;" :href="twLoginUrl">Log In</a> 
                                 </button>
@@ -56,11 +56,12 @@
                                 <button class="button is-link" @click="loadTwitchPlayer()">Twitch</button>
                             </div>
                             <div class="level-item">
-                                <span v-for="item in channels" class="tag is-medium" style="margin-left: 5px;">{{ item }}</span>
+                                <button @click="selectProg(index)" v-for="(item, index) in channels" class="tag is-medium" :class="item.isActive ? 'is-success' : '' " style="margin-left: 5px;">{{ item.name }}</button>
                             </div>
                         </div>
 
                         <div class="level-right">
+                            <!--
                             <div class="level-item">
                                 <div class="field has-addons">
                                     <div class="control">
@@ -71,6 +72,7 @@
                                     </div>
                                 </div>
                             </div>
+                            -->
                             <p class="level-item"><button class="button is-info is-light is-rounded" @click="progDown()"><</button></p>
                             <p class="level-item"><button class="button is-info is-light is-rounded" @click="progUp()">></button></p>
                         </div>
@@ -80,7 +82,7 @@
                     <hr>
                     <div class="level">
                         <div class="level-left">
-                            <div class="level-item">
+                            <div v-if="!logedYT" class="level-item">
                                 <button class="button is-primary is-rounded">
                                     <a style="color:white;" :href="ytLoginUrl">Log In</a>
                                 </button>
@@ -90,6 +92,7 @@
                             </div>
                         </div>
                         <div class="level-right">
+                            <!--
                             <div class="level-item">
                                 <div class="field has-addons">
                                     <div class="control">
@@ -100,8 +103,9 @@
                                     </div>
                                 </div>
                             </div>
+                            -->
                             <p class="level-item">
-                                <button class="button is-info is-light is-rounded" :disabled="ytPagination.prevTokenIsActive" @click="ytApiSubPN(this.ytPagination.prevPageToken)"><</button>
+                                <button class="button is-info is-light is-rounded" :disabled="!ytPagination.prevTokenIsActive" @click="ytApiSubPN(this.ytPagination.prevPageToken)"><</button>
                             </p>
                             <p class="level-item">
                                 <button class="button is-info is-light is-rounded" @click="ytApiSubPN(this.ytPagination.nextPageToken)">></button>
@@ -156,7 +160,6 @@
                 </div>
 
             </div>
-
         </div>
     </div>
 
@@ -173,6 +176,8 @@
 
         createApp({
             mounted() {
+                // localStorage.setItem('twAccessToken', undefined);
+                localStorage.setItem('ytAccessToken', undefined);
 
                 if (url.includes('access_token') && url.includes('youtube')) {
                     let params = url.split('#');
@@ -186,21 +191,23 @@
 
                 }
 
-                if (localStorage.getItem('twAccessToken') != 'undefined') {
+                if (localStorage.getItem('twAccessToken') != null && localStorage.getItem('twAccessToken') != 'undefined') {
                     this.logedTW = true;
+                    this.loadTwitchPlayer();
                 }
 
-                if (localStorage.getItem('ytAccessToken') != 'undefined') {
+                if (localStorage.getItem('ytAccessToken') != null && localStorage.getItem('ytAccessToken') != 'undefined') {
                     this.logedYT = true;
+                    this.ytApiSub();
                 }
 
             },
             data() {
                 return {
-                    host: "https://app.yannicksf.xyz", // "http://localhost:3000"
+                    host: "http://localhost:3000", // "https://app.yannicksf.xyz"
                     currentPlayer: undefined,
                     playerMode: 'TW',
-                    index: 0,
+                    index: -1,
                     channels: [],
                     logedTW: false,
                     ytVideoId: '',
@@ -253,7 +260,10 @@
 
                             var streamList = resp.data.data
                             for (var e in streamList) {
-                                this.channels.push(streamList[e].user_login);
+                                this.channels.push({
+                                    'name': streamList[e].user_login,
+                                    'isActive': false
+                                });
                             }
                         })
 
@@ -265,23 +275,57 @@
                     value.value = ''
                 },
                 progUp() {
+                    let tmpChIndex = this.index;
 
                     if (this.index == this.channels.length - 1) {
                         this.index = 0;
                     } else {
                         this.index++;
                     }
-                    this.currentPlayer.setChannel(this.channels[this.index]);
+                    this.currentPlayer.setChannel(this.channels[this.index].name);
 
+                    if (this.index != -1) {
+                        this.channels[this.index].isActive = true;
+                    }
+
+                    if (tmpChIndex == this.channels.length - 1) {
+                        this.channels[tmpChIndex].isActive = false;
+                    } else {
+                        this.channels[this.index - 1].isActive = false;
+                    }
                 },
                 progDown() {
+
+                    let tmpChIndex = this.index;
 
                     if (this.index == 0) {
                         this.index = this.channels.length - 1;
                     } else {
                         this.index--;
                     }
-                    this.currentPlayer.setChannel(this.channels[this.index]);
+                    this.currentPlayer.setChannel(this.channels[this.index].name);
+
+                    if (this.index != -1) {
+                        this.channels[this.index].isActive = true;
+                    }
+
+                    if (tmpChIndex == 0) {
+                        this.channels[0].isActive = false;
+                    } else {
+                        this.channels[this.index + 1].isActive = false;
+                    }
+
+                },
+                selectProg(index) {
+                    if (index > -1) {
+                        this.currentPlayer.setChannel(this.channels[index].name);
+                        if (this.index != -1) {
+                            this.channels[this.index].isActive = false;
+                        }
+                        this.index = index;
+                        this.channels[index].isActive = true;
+
+                    }
                 },
 
                 ytApiSub() {
@@ -290,6 +334,7 @@
                             'Authorization': 'Bearer ' + localStorage.getItem('ytAccessToken')
                         }
                     }).then((response) => {
+
                         this.ytPagination.subItems = response.data.items
                         this.ytPagination.nextPageToken = response.data.nextPageToken
 
@@ -317,7 +362,7 @@
                     })
                 },
                 ytSearchVideoBySub(subChanelId) {
-                    axios.get("https://youtube.googleapis.com/youtube/v3/search?part=snippet&channelId=" + subChanelId + "&type=video&key=" + ytApiKey, {
+                    axios.get("https://youtube.googleapis.com/youtube/v3/search?part=snippet&channelId=" + subChanelId + "&order=date&maxResults=10&type=video&key=" + ytApiKey, {
                         headers: {
                             'Authorization': 'Bearer ' + localStorage.getItem('ytAccessToken')
                         }
@@ -329,7 +374,6 @@
                     this.playerMode = 'YT';
                     this.ytVideoId = value;
                 }
-
             },
             computed: {
                 twLoginUrl() {
@@ -340,7 +384,7 @@
                 },
                 ytUrlVideo() {
                     return 'https://www.youtube.com/embed/' + this.ytVideoId
-                },
+                }
             }
         }).mount('#app')
     </script>
