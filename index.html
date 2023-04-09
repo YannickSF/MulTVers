@@ -8,61 +8,52 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
+
+    <style>
+
+    </style>
 </head>
 
 <body>
-    <div class="columns">
-        <div class="column is-12">
+    <div id="app">
+        <!-- HEADER -->
+        <div class="container">
+            <nav class="navbar">
+                <div class="navbar-brand">
+                    <p class="title"><a :href="host">Mul[T•V]ers</a></p>
 
-            <div id="app">
-                <!-- HEADER -->
-                <div class="container">
-                    <nav class="navbar">
-                        <div class="navbar-brand">
-                            <p class="title"><a :href="host">Mul[T•V]ers</a></p>
-                        </div>
-
-                        <div class="navbar-menu">
-                            <div class="navbar-end">
-                                <div class="navbar-item"><button class="button is-dark "><a style="color:red;" target="_blank" href="https://www.netflix.com/browse">Netflix</a></button></div>
-                                <div class="navbar-item"><button class="button is-black"><a style="color: yellow;" target="_blank" href="https://app.plex.tv/desktop/#!/">Plex</a></button></div>
-                                <div class="navbar-item"><button class="button is-info "><a style="color:white;" target="_blank" href="https://www.primevideo.com/region/eu/?ref_=dv_web_unknown">Prime Vidéo</a></button></div>
-                                <div class="navbar-item"><button class="button is-light"><a style="color: blue;" target="_blank" href="https://www.disneyplus.com/fr-fr/select-profile">Disney +</a></button></div>
-                            </div>
-                        </div>
-                    </nav>
-                    <hr>
                 </div>
 
-                <!-- Balise du player -->
-                <div id="place-player">
-                    <div v-if="playerMode === 'YT'">
-                        <iframe width="100%" height="700" :src="ytUrlVideo"></iframe>
-                    </div>
-                    <div v-else id="player"></div>
+                <div class="navbar-menu">
                 </div>
+            </nav>
+            <hr>
+        </div>
 
-                <div class="container">
-                    <!-- TWITCH -->
-                    <hr>
-                    <nav class="level">
-                        <div class="level-left">
-                            <div v-if="!logedTW" class="level-item">
-                                <button class="button is-primary is-rounded"> 
+        <!-- Balise du player -->
+        <div id="place-player">
+            <div v-if="playerMode === 'YT'">
+                <iframe width="100%" height="700" :src="ytUrlVideo"></iframe>
+            </div>
+            <div v-else id="player"></div>
+        </div>
+
+        <div class="container">
+            <!-- TWITCH -->
+            <hr>
+            <nav class="level">
+                <div class="level-left">
+                    <div v-if="!logedTW" class="level-item">
+                        <button class="button is-primary is-rounded"> 
                                     <a style="color:white;" :href="twLoginUrl">Log In</a> 
                                 </button>
-                            </div>
-                            <div class="level-item">
-                                <button class="button is-link" @click="loadTwitchPlayer()">Twitch</button>
-                            </div>
-                            <div class="level-item">
-                                <button @click="selectProg(index)" v-for="(item, index) in channels" class="tag is-medium" :class="item.isActive ? 'is-success' : '' " style="margin-left: 5px;">{{ item.name }}</button>
-                            </div>
-                        </div>
+                    </div>
+                    <div class="level-item">
+                        <button class="button is-link" @click="loadTwitchPlayer()">Twitch</button>
+                    </div>
 
-                        <div class="level-right">
-                            <!--
-                            <div class="level-item">
+                    <div v-if="logedTW" class="level-item">
+                        <!--
                                 <div class="field has-addons">
                                     <div class="control">
                                         <input id="search-streamer" class="input is-rounded" type="text" placeholder="Coming soon ...">
@@ -71,29 +62,24 @@
                                         <button class="button is-link is-light is-rounded" @click="addStreamerTochannels()">Search</button>
                                     </div>
                                 </div>
-                            </div>
-                            -->
-                            <p class="level-item"><button class="button is-info is-light is-rounded" @click="progDown()"><</button></p>
-                            <p class="level-item"><button class="button is-info is-light is-rounded" @click="progUp()">></button></p>
-                        </div>
-                    </nav>
+                                -->
+                        <p class="level-item"><button class="button is-info is-light is-rounded" @click="progDown()"><</button></p>
+                        <p class="level-item"><button class="button is-info is-light is-rounded" @click="progUp()">></button></p>
+                    </div>
+
 
                     <!-- YOUTUBE -->
-                    <hr>
-                    <div class="level">
-                        <div class="level-left">
-                            <div v-if="!logedYT" class="level-item">
-                                <button class="button is-primary is-rounded">
+                    <div v-if="!logedYT" class="level-item">
+                        <button class="button is-primary is-rounded">
                                     <a style="color:white;" :href="ytLoginUrl">Log In</a>
                                 </button>
-                            </div>
-                            <div class="level-item">
-                                <button class="button is-danger" @click="ytApiSub()">Youtube</button>
-                            </div>
-                        </div>
-                        <div class="level-right">
-                            <!--
-                            <div class="level-item">
+                    </div>
+                    <div class="level-item">
+                        <button class="button is-danger" @click="ytApiSub()">Youtube</button>
+                    </div>
+                    <div v-if="logedYT" class="level-item">
+                        <!--
+
                                 <div class="field has-addons">
                                     <div class="control">
                                         <input id="search-streamer" class="input is-rounded" placeholder="Coming soon ..." type="text">
@@ -102,67 +88,90 @@
                                         <button class="button is-danger is-light is-rounded">Search</button>
                                     </div>
                                 </div>
-                            </div>
-                            -->
-                            <p class="level-item">
-                                <button class="button is-info is-light is-rounded" :disabled="!ytPagination.prevTokenIsActive" @click="ytApiSubPN(this.ytPagination.prevPageToken)"><</button>
-                            </p>
-                            <p class="level-item">
-                                <button class="button is-info is-light is-rounded" @click="ytApiSubPN(this.ytPagination.nextPageToken)">></button>
-                            </p>
-                        </div>
+                                -->
+                        <p class="level-item">
+                            <button class="button is-info is-light is-rounded" :disabled="!ytPagination.prevTokenIsActive" @click="ytApiSubPN(this.ytPagination.prevPageToken)"><</button>
+                        </p>
+                        <p class="level-item">
+                            <button class="button is-info is-light is-rounded" @click="ytApiSubPN(this.ytPagination.nextPageToken)">></button>
+                        </p>
                     </div>
-
-                    <div class="container">
-                        <div id="yt-sub" class="columns is-multiline">
-                            <div v-for="element in this.ytPagination.subItems" class='column is-one-fifth'>
-                                <div class='card'>
-                                    <header class='card-header'>
-                                        <button class='card-header-icon' @click="ytSearchVideoBySub(element.snippet.resourceId.channelId)">Voir</button>
-                                    </header>
-                                    <div class='card-image'>
-                                        <figure class='image is-4by3'>
-                                            <img :src="element.snippet.thumbnails.default.url" alt='Placeholder image'>
-                                        </figure>
-                                    </div>
-                                    <div class='card-content'>
-                                        <div class='media'>
-                                            <div class='media-content'>
-                                                <p class='title is-4'>{{ element.snippet.title }}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div v-for="element in this.ytPagination.videoItems" class='column is-one-fifth'>
-                                <div class='card'>
-                                    <header class='card-header'>
-                                        <button class='card-header-icon' @click="changeUrlVideo(element.id.videoId)">Voir</button>
-                                    </header>
-                                    <div class='card-image'>
-                                        <figure class='image is-4by3'>
-                                            <img :src="element.snippet.thumbnails.default.url" alt='Placeholder image'>
-                                        </figure>
-                                    </div>
-                                    <div class='card-content'>
-                                        <div class='media'>
-                                            <div class='media-content'>
-                                                <p class='title is-4'>{{ element.snippet.title }}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                </div>
+                <div class="level-left">
+                    <div class="level-item"><button class="button is-dark "><a style="color:red;" target="_blank" href="https://www.netflix.com/browse">Netflix</a></button></div>
+                    <div class="level-item"><button class="button is-black"><a style="color: yellow;" target="_blank" href="https://app.plex.tv/desktop/#!/">Plex</a></button></div>
+                    <div class="level-item"><button class="button is-info "><a style="color:white;" target="_blank" href="https://www.primevideo.com/region/eu/?ref_=dv_web_unknown">Prime Vidéo</a></button></div>
+                    <div class="level-item"><button class="button is-light"><a style="color: blue;" target="_blank" href="https://www.disneyplus.com/fr-fr/select-profile">Disney +</a></button></div>
                 </div>
 
+            </nav>
+        </div>
+
+        <!-- TWITCH -->
+        <div class="container">
+            <hr>
+            <div class="columns is-multiline">
+                <button v-for="(item, index) in channels" @click="selectProg(index)" class="tag is-medium column is-2" :class="item.isActive ? 'is-success' : ''" style="margin-left: 5px; margin-bottom: 5px;">
+                    <p style="margin-right: 2px; margin-left: 2px;">{{ item.name }}</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- YOUTUBE -->
+        <div class="container">
+            <hr>
+            <div id="yt-sub" class="columns is-multiline">
+                <div v-for="element in this.ytPagination.subItems" class='column is-one-fifth'>
+                    <div class='card'>
+                        <header class='card-header'>
+                            <button class='card-header-icon' @click="ytSearchVideoBySub(element.snippet.resourceId.channelId)">Voir</button>
+                        </header>
+                        <div class='card-image'>
+                            <figure class='image is-4by3'>
+                                <img :src="element.snippet.thumbnails.default.url" alt='Placeholder image'>
+                            </figure>
+                        </div>
+                        <div class='card-content'>
+                            <div class='media'>
+                                <div class='media-content'>
+                                    <p class='title is-4'>{{ element.snippet.title }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-for="element in this.ytPagination.videoItems" class='column is-one-fifth'>
+                    <div class='card'>
+                        <header class='card-header'>
+                            <button class='card-header-icon' @click="changeUrlVideo(element.id.videoId)">Voir</button>
+                        </header>
+                        <div class='card-image'>
+                            <figure class='image is-4by3'>
+                                <img :src="element.snippet.thumbnails.default.url" alt='Placeholder image'>
+                            </figure>
+                        </div>
+                        <div class='card-content'>
+                            <div class='media'>
+                                <div class='media-content'>
+                                    <p class='title is-4'>{{ element.snippet.title }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <strong>MulTVers</strong> Forge by <a href="https://link.yannicksf.xyz" style="color: #ff0d0d;">Yannick <strong style="color:#ffdf0d;">S.</strong>F</a>.
+            <br/> The source code is licensed <a href="http://opensource.org/licenses/mit-license.php">MIT</a>.
+            <br/>The website content is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.
+            </p>
+        </div>
+    </footer>
     <script>
         // SETTINGS << 
         let url = window.location.href;
@@ -204,7 +213,7 @@
             },
             data() {
                 return {
-                    host: "https://app.yannicksf.xyz", // "http://localhost:3000"
+                    host: "http://localhost:3000", // "https://app.yannicksf.xyz"
                     currentPlayer: undefined,
                     playerMode: 'TW',
                     index: -1,
