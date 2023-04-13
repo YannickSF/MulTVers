@@ -111,7 +111,12 @@
         <div class="container">
             <hr>
             <div class="columns is-multiline">
-                <button v-for="(item, index) in channels" @click="selectProg(index)" class="tag is-medium column is-2" :class="item.isActive ? 'is-success' : ''" style="margin-left: 5px; margin-bottom: 5px;">
+                <button v-for="(item, index) in channels" @click="selectProg(index)" class="tag is-medium column is-2" :class="item.isActive ? 'is-success' : ''" style="margin-left: 5px; margin-bottom: 5px;" :title="item.title">
+                    <!--
+                    <figure class="image is-16x16">
+                        <img :src="item.thumbnail">
+                    </figure>
+                    -->
                     <p style="margin-right: 2px; margin-left: 2px;">{{ item.name }}</p>
                 </button>
             </div>
@@ -269,8 +274,12 @@
 
                             var streamList = resp.data.data
                             for (var e in streamList) {
+
                                 this.channels.push({
                                     'name': streamList[e].user_login,
+                                    'title': streamList[e].title,
+                                    'category': streamList[e].game_name,
+                                    'thumbnail': streamList[e].thumbnail_url,
                                     'isActive': false
                                 });
                             }
