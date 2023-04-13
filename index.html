@@ -128,47 +128,39 @@
             <div id="yt-sub" class="columns is-multiline">
                 <div v-for="element in this.ytPagination.subItems" class='column is-one-fifth'>
                     <div class='card'>
-                        <header class='card-header'>
-                            <button class='card-header-icon' @click="ytSearchVideoBySub(element.snippet.resourceId.channelId)">Voir</button>
-                        </header>
                         <div class='card-image'>
                             <figure class='image is-4by3'>
                                 <img :src="element.snippet.thumbnails.default.url" alt='Placeholder image'>
                             </figure>
                         </div>
-                        <div class='card-content'>
-                            <div class='media'>
-                                <div class='media-content'>
-                                    <p class='title is-4'>{{ element.snippet.title }}</p>
-                                </div>
-                            </div>
-                        </div>
+                        <footer class="card-footer">
+                            <a @click="ytSearchVideoBySub(element.snippet.resourceId.channelId)" class="card-footer-item">
+                                <p class='title is-4'>{{ element.snippet.title }}</p>
+                            </a>
+                        </footer>
                     </div>
                 </div>
 
                 <div v-for="element in this.ytPagination.videoItems" class='column is-one-fifth'>
-                    <div class='card'>
-                        <header class='card-header'>
-                            <button class='card-header-icon' @click="changeUrlVideo(element.id.videoId)">Voir</button>
-                        </header>
+                    <div class='card' style="background-color: gray;">
                         <div class='card-image'>
                             <figure class='image is-4by3'>
                                 <img :src="element.snippet.thumbnails.default.url" alt='Placeholder image'>
                             </figure>
                         </div>
-                        <div class='card-content'>
-                            <div class='media'>
-                                <div class='media-content'>
-                                    <p class='title is-4'>{{ element.snippet.title }}</p>
-                                </div>
-                            </div>
-                        </div>
+
+                        <footer class="card-footer">
+                            <a @click="changeUrlVideo(element.id.videoId)" class="card-footer-item">
+                                <p class='title is-4'>{{ element.snippet.title }}</p>
+                            </a>
+                        </footer>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
+    <br>
+    <br>
     <footer class="footer">
         <div class="content has-text-centered">
             <strong>MulTVers</strong> Forge by <a href="https://link.yannicksf.xyz" style="color: #ff0d0d;">Yannick <strong style="color:#ffdf0d;">S.</strong>F</a>.
