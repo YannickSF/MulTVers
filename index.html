@@ -2,10 +2,16 @@
 <html>
 
 <head>
-    <title>MulTVers</title>
+    <title>ViewerDeck</title>
+    <meta name="author" content="Yannick S. FELER">
+    <meta name="description" content="ViewerDeck. Got all VoD platform on one site.">
+    <meta name="twitter:title" content="ViewerDeck. Got all VoD platform on one site.">
+    <link rel="icon" type="image/png" href="favicon.ico">
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
 
@@ -20,7 +26,8 @@
         <div class="container">
             <nav class="navbar">
                 <div class="navbar-brand">
-                    <p class="title"><a :href="host">Mul[T•V]ers</a></p>
+                    <p class="title"><a :href="host">ViewerDeck</a></p>
+
 
                 </div>
 
@@ -111,7 +118,12 @@
         <div class="container">
             <hr>
             <div class="columns is-multiline">
-                <button v-for="(item, index) in channels" @click="selectProg(index)" class="tag is-medium column is-2" :class="item.isActive ? 'is-success' : ''" style="margin-left: 5px; margin-bottom: 5px;">
+                <button v-for="(item, index) in channels" @click="selectProg(index)" class="tag is-medium column is-2" :class="item.isActive ? 'is-success' : ''" style="margin-left: 5px; margin-bottom: 5px;" :title="item.title">
+                    <!--
+                    <figure class="image is-16x16">
+                        <img :src="item.thumbnail">
+                    </figure>
+                    -->
                     <p style="margin-right: 2px; margin-left: 2px;">{{ item.name }}</p>
                 </button>
             </div>
@@ -123,50 +135,42 @@
             <div id="yt-sub" class="columns is-multiline">
                 <div v-for="element in this.ytPagination.subItems" class='column is-one-fifth'>
                     <div class='card'>
-                        <header class='card-header'>
-                            <button class='card-header-icon' @click="ytSearchVideoBySub(element.snippet.resourceId.channelId)">Voir</button>
-                        </header>
                         <div class='card-image'>
                             <figure class='image is-4by3'>
                                 <img :src="element.snippet.thumbnails.default.url" alt='Placeholder image'>
                             </figure>
                         </div>
-                        <div class='card-content'>
-                            <div class='media'>
-                                <div class='media-content'>
-                                    <p class='title is-4'>{{ element.snippet.title }}</p>
-                                </div>
-                            </div>
-                        </div>
+                        <footer class="card-footer">
+                            <a @click="ytSearchVideoBySub(element.snippet.resourceId.channelId)" class="card-footer-item">
+                                <p class='title is-4'>{{ element.snippet.title }}</p>
+                            </a>
+                        </footer>
                     </div>
                 </div>
 
                 <div v-for="element in this.ytPagination.videoItems" class='column is-one-fifth'>
-                    <div class='card'>
-                        <header class='card-header'>
-                            <button class='card-header-icon' @click="changeUrlVideo(element.id.videoId)">Voir</button>
-                        </header>
+                    <div class='card' style="background-color: gray;">
                         <div class='card-image'>
                             <figure class='image is-4by3'>
                                 <img :src="element.snippet.thumbnails.default.url" alt='Placeholder image'>
                             </figure>
                         </div>
-                        <div class='card-content'>
-                            <div class='media'>
-                                <div class='media-content'>
-                                    <p class='title is-4'>{{ element.snippet.title }}</p>
-                                </div>
-                            </div>
-                        </div>
+
+                        <footer class="card-footer">
+                            <a @click="changeUrlVideo(element.id.videoId)" class="card-footer-item">
+                                <p class='title is-4'>{{ element.snippet.title }}</p>
+                            </a>
+                        </footer>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
+    <br>
+    <br>
     <footer class="footer">
         <div class="content has-text-centered">
-            <strong>MulTVers</strong> Forge by <a href="https://link.yannicksf.xyz" style="color: #ff0d0d;">Yannick <strong style="color:#ffdf0d;">S.</strong>F</a>.
+            <strong>ViewerDeck</strong> Forge by <a href="https://link.yannicksf.xyz" style="color: #ff0d0d;">Yannick <strong style="color:#ffdf0d;">S.</strong>F</a>.
             <br/> The source code is licensed <a href="http://opensource.org/licenses/mit-license.php">MIT</a>.
             <br/>The website content is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.
             </p>
@@ -213,7 +217,7 @@
             },
             data() {
                 return {
-                    host: "https://app.yannicksf.xyz", // "http://localhost:3000"
+                    host: "https://tv.yannicksf.xyz", // "http://localhost:3000"
                     currentPlayer: undefined,
                     playerMode: 'TW',
                     index: -1,
@@ -269,8 +273,12 @@
 
                             var streamList = resp.data.data
                             for (var e in streamList) {
+
                                 this.channels.push({
                                     'name': streamList[e].user_login,
+                                    'title': streamList[e].title,
+                                    'category': streamList[e].game_name,
+                                    'thumbnail': streamList[e].thumbnail_url,
                                     'isActive': false
                                 });
                             }
